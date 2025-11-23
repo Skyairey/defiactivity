@@ -123,8 +123,12 @@ async function indexCommunityTweets() {
 // Run immediately on startup
 indexCommunityTweets();
 
-// Run every 2 days (2 days * 24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
-const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
-setInterval(indexCommunityTweets, TWO_DAYS);
-
-console.log(`🔄 Auto-update scheduled every 2 days (${TWO_DAYS}ms)`);
+// Only run setInterval if not in CI/GitHub Actions environment
+if (!process.env.CI && !process.env.GITHUB_ACTIONS) {
+  // Run every 2 days (2 days * 24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+  const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+  setInterval(indexCommunityTweets, TWO_DAYS);
+  console.log(`🔄 Auto-update scheduled every 2 days (${TWO_DAYS}ms)`);
+} else {
+  console.log(`✅ Running in CI mode - will exit after this run`);
+}
