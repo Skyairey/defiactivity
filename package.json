@@ -1,0 +1,39 @@
+{
+  "name": "defi-hub",
+  "version": "1.0.0",
+  "description": "DeFi Hub - Twitter indexing and leaderboard application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "vercel-build": "npm run build",
+    "backend": "node backend/twitter_indexer.js",
+    "run": "node backend/twitter_indexer.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.84.0",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "lucide-react": "^0.553.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.181.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.22.0",
+    "autoprefixer": "^10.4.22",
+    "babel-loader": "^9.1.0",
+    "copy-webpack-plugin": "^13.0.1",
+    "css-loader": "^6.8.0",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.2.0",
+    "style-loader": "^3.3.0",
+    "tailwindcss": "^3.4.18",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0",
+    "webpack-dev-server": "^4.15.0"
+  }
+}

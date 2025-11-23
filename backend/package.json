@@ -1,0 +1,13 @@
+{
+  "name": "defi-hub-backend",
+  "version": "1.0.0",
+  "description": "Backend cron job for Twitter indexing",
+  "main": "twitter_indexer.js",
+  "scripts": {
+    "start": "node twitter_indexer.js"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3"
+  }
+}

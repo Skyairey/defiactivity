@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Set a default dark background to match the 3D scene initially */
+body {
+  background-color: #020202;
+  margin: 0;
+}
