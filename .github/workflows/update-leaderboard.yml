@@ -2,8 +2,8 @@ name: Update Leaderboard
 
 on:
   schedule:
-    # Run every hour
-    - cron: '0 * * * *'
+    # Run every 2 days at midnight
+    - cron: '0 0 */2 * *'
   workflow_dispatch: # Allow manual triggers
 
 jobs:
