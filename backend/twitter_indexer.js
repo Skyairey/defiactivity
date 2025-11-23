@@ -1,29 +1,33 @@
 // THIS IS A SERVER-SIDE SCRIPT
 // Run with: node backend/twitter_indexer.js
-// Requires: npm install axios @supabase/supabase-js
+// Requires: npm install axios
 
 require("dotenv").config(); // Load environment variables
 const axios = require("axios");
-const { createClient } = require("@supabase/supabase-js");
+const fs = require("fs");
+const path = require("path");
 
-// Environment variables
+// 1. Your API Key from environment
 const API_KEY = process.env.API_KEY;
+
+// 2. Your Community ID from environment
 const COMMUNITY_ID = process.env.COMMUNITY_ID;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 // Validate required environment variables
-if (!API_KEY || !COMMUNITY_ID || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+if (!API_KEY || !COMMUNITY_ID) {
   console.error(
-    "❌ Missing required environment variables"
+    "❌ Missing required environment variables: API_KEY or COMMUNITY_ID"
   );
   process.exit(1);
 }
 
 const COMMUNITY_URL = "https://api.twitterapi.io/twitter/community/tweets";
 
-// Initialize Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Ensure the output directory exists
+const outputDir = path.join(__dirname, "../public/api");
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 
 async function indexCommunityTweets() {
   console.log(
@@ -104,32 +108,23 @@ async function indexCommunityTweets() {
 
     console.log(`✅ Successfully indexed ${leaderboardCache.length} members.`);
 
-    // Save to Supabase
-    console.log("💾 Saving to Supabase...");
-    
-    // Clear existing data
-    await supabase.from("leaderboard").delete().neq("rank", 0);
-    
-    // Insert new data
-    const { data, error } = await supabase
-      .from("leaderboard")
-      .insert(leaderboardCache);
-
-    if (error) {
-      console.error("❌ Supabase Error:", error.message);
-      process.exit(1);
-    }
-
-    console.log(`✅ Successfully saved ${leaderboardCache.length} members to Supabase!`);
-    process.exit(0); // Explicitly exit with success
+    // Save File
+    const outputPath = path.join(outputDir, "users.json");
+    fs.writeFileSync(outputPath, JSON.stringify(leaderboardCache, null, 2));
+    console.log(`💾 Saved to ${outputPath}`);
   } catch (error) {
     console.error(
       "❌ API Error:",
       error.response ? error.response.data : error.message
     );
-    process.exit(1); // Exit with error code
   }
 }
 
-// Run immediately - Render Cron Job will execute this script every 2 days
+// Run immediately on startup
 indexCommunityTweets();
+
+// Run every 2 days (2 days * 24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+setInterval(indexCommunityTweets, TWO_DAYS);
+
+console.log(`🔄 Auto-update scheduled every 2 days (${TWO_DAYS}ms)`);
