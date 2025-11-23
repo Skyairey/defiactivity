@@ -7,6 +7,7 @@
     "start": "node twitter_indexer.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.84.0",
     "axios": "^1.13.2",
     "dotenv": "^17.2.3"
   }

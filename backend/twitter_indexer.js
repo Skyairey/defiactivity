@@ -1,33 +1,29 @@
 // THIS IS A SERVER-SIDE SCRIPT
 // Run with: node backend/twitter_indexer.js
-// Requires: npm install axios
+// Requires: npm install axios @supabase/supabase-js
 
 require("dotenv").config(); // Load environment variables
 const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
+const { createClient } = require("@supabase/supabase-js");
 
-// 1. Your API Key from environment
+// Environment variables
 const API_KEY = process.env.API_KEY;
-
-// 2. Your Community ID from environment
 const COMMUNITY_ID = process.env.COMMUNITY_ID;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 // Validate required environment variables
-if (!API_KEY || !COMMUNITY_ID) {
+if (!API_KEY || !COMMUNITY_ID || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error(
-    "❌ Missing required environment variables: API_KEY or COMMUNITY_ID"
+    "❌ Missing required environment variables"
   );
   process.exit(1);
 }
 
 const COMMUNITY_URL = "https://api.twitterapi.io/twitter/community/tweets";
 
-// Ensure the output directory exists
-const outputDir = path.join(__dirname, "../public/api");
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, { recursive: true });
-}
+// Initialize Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function indexCommunityTweets() {
   console.log(
@@ -108,15 +104,30 @@ async function indexCommunityTweets() {
 
     console.log(`✅ Successfully indexed ${leaderboardCache.length} members.`);
 
-    // Save File
-    const outputPath = path.join(outputDir, "users.json");
-    fs.writeFileSync(outputPath, JSON.stringify(leaderboardCache, null, 2));
-    console.log(`💾 Saved to ${outputPath}`);
+    // Save to Supabase
+    console.log("💾 Saving to Supabase...");
+    
+    // Clear existing data
+    await supabase.from("leaderboard").delete().neq("rank", 0);
+    
+    // Insert new data
+    const { data, error } = await supabase
+      .from("leaderboard")
+      .insert(leaderboardCache);
+
+    if (error) {
+      console.error("❌ Supabase Error:", error.message);
+      process.exit(1);
+    }
+
+    console.log(`✅ Successfully saved ${leaderboardCache.length} members to Supabase!`);
+    process.exit(0); // Explicitly exit with success
   } catch (error) {
     console.error(
       "❌ API Error:",
       error.response ? error.response.data : error.message
     );
+    process.exit(1); // Exit with error code
   }
 }
 
