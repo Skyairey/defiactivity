@@ -26,6 +26,7 @@ jobs:
       
       - name: Run Twitter indexer
         env:
+          CI: true
           API_KEY: ${{ secrets.API_KEY }}
           COMMUNITY_ID: ${{ secrets.COMMUNITY_ID }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
